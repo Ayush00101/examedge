@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ExamEdge | Affordable AI-Powered Exam Prep</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            indigo: '#4F46E5', 
+                            indigoDark: '#4338CA',
+                            orange: '#F97316', 
+                            orangeDark: '#EA580C',
+                            bg: '#F8FAFC'      
+                        }
+                    },
+                    animation: {
+                        'flash-glow': 'flashGlow 2s ease-in-out infinite',
+                        'fade-in': 'fadeIn 0.3s ease-out forwards'
+                    },
+                    keyframes: {
+                        flashGlow: {
+                            '0%, 100%': { opacity: 1, transform: 'scale(1)', boxShadow: '0 0 15px rgba(79, 70, 229, 0.4)' },
+                            '50%': { opacity: 0.85, transform: 'scale(1.02)', boxShadow: '0 0 30px rgba(79, 70, 229, 0.8)' },
+                        },
+                        fadeIn: {
+                            '0%': { opacity: 0, transform: 'translateY(10px)' },
+                            '100%': { opacity: 1, transform: 'translateY(0)' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .fade-transition {
+            transition: opacity 0.4s ease-in-out;
+        }
+        /* Active nav link styling */
+        .nav-active {
+            color: #4F46E5 !important;
+            font-weight: 600;
+            border-bottom: 2px solid #4F46E5;
+        }
+    </style>
+</head>
+<body class="bg-brand-bg text-slate-800 font-sans antialiased min-h-screen flex flex-col relative">
+
+    <nav class="fixed w-full bg-white shadow-sm z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-20 items-center">
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="location.reload()">
+                    <div class="w-8 h-8 bg-brand-indigo rounded-lg flex items-center justify-center text-white font-bold text-xl">E</div>
+                    <span class="font-heading font-bold text-2xl text-slate-900">ExamEdge</span>
+                </div>
+                <div id="navLinks" class="hidden md:flex space-x-8 h-full items-center">
+                    <button onclick="switchTab('tab-home', this)" class="nav-tab nav-active text-slate-600 hover:text-brand-indigo transition h-full px-2">Home</button>
+                    <button onclick="switchTab('tab-problem', this)" class="nav-tab text-slate-600 hover:text-brand-indigo transition h-full px-2">The Problem</button>
+                    <button onclick="switchTab('tab-features', this)" class="nav-tab text-slate-600 hover:text-brand-indigo transition h-full px-2">Features</button>
+                    <button onclick="switchTab('tab-pricing', this)" class="nav-tab text-slate-600 hover:text-brand-indigo transition h-full px-2">Pricing</button>
+                </div>
+                <div class="hidden md:flex items-center gap-4">
+                    <button id="logoutBtn" class="hidden text-slate-600 hover:text-red-500 font-medium transition" onclick="logout()">
+                        Logout
+                    </button>
+                    <button id="loginBtnNav" class="bg-brand-orange hover:bg-brand-orangeDark text-white px-6 py-2.5 rounded-full font-medium transition shadow-lg shadow-orange-500/30" onclick="openLoginModal()">
+                        Login / Sign Up
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loginModal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden flex justify-center items-center opacity-0 fade-transition">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 relative transform scale-95 transition-transform duration-300" id="modalContent">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            
+            <h2 id="modalTitle" class="font-heading text-2xl font-bold text-slate-900 mb-6 text-center">Welcome Back</h2>
+            
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Email</label>
+                        <input type="email" id="emailInput" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-indigo focus:border-brand-indigo outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-slate-700 mb-1">Password</label>
+                        <input type="password" id="passwordInput" required class="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-brand-indigo focus:border-brand-indigo outline-none transition">
+                    </div>
+                </div>
+                
+                <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden"></p>
+
+                <button type="submit" id="submitBtn" class="w-full bg-brand-indigo hover:bg-brand-indigoDark text-white font-semibold py-3 rounded-lg mt-6 transition">
+                    Login
+                </button>
+            </form>
+
+            <div class="mt-6 text-center text-sm text-slate-600">
+                <span id="toggleText">Don't have an account?</span> 
+                <button onclick="toggleAuthMode()" id="toggleBtn" class="text-brand-orange font-semibold hover:underline">Sign Up</button>
+            </div>
+        </div>
+    </div>
+
+    <main class="flex-grow pt-20">
+        
+        <div id="landingTabsContainer">
+            
+            <div id="tab-home" class="page-tab animate-fade-in block">
+                <section class="pt-20 pb-20 lg:pt-32 lg:pb-28 overflow-hidden">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+                        <div class="grid lg:grid-cols-2 gap-12 items-center">
+                            <div>
+                                <div class="inline-block bg-indigo-100 text-brand-indigo font-semibold px-4 py-1.5 rounded-full text-sm mb-6">🚀 Launching for Android</div>
+                                <h1 class="font-heading text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight text-slate-900 mb-6">
+                                    Smarter Exam Prep for <span class="text-brand-indigo">Every Indian Student</span>.
+                                </h1>
+                                <p class="text-lg text-slate-600 mb-8 leading-relaxed max-w-lg">
+                                    The only AI-powered, offline-ready app with personalized study plans and peer rooms for JEE, GATE, UPSC, SSC, and Semesters.
+                                </p>
+                                <div class="flex flex-col sm:flex-row gap-4">
+                                    <button onclick="openLoginModal()" class="bg-brand-indigo hover:bg-brand-indigoDark text-white px-8 py-3.5 rounded-lg font-medium text-center transition shadow-lg shadow-indigo-500/30">
+                                        Login to Start
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="relative mx-auto w-full max-w-md">
+                                <div class="absolute -inset-4 bg-gradient-to-r from-brand-indigo to-purple-500 opacity-20 blur-2xl rounded-full"></div>
+                                <div class="relative bg-white border-4 border-slate-900 rounded-[2.5rem] h-[500px] shadow-2xl overflow-hidden flex flex-col">
+                                    <div class="bg-slate-900 h-6 w-1/3 mx-auto rounded-b-xl mb-4"></div>
+                                    <div class="p-6">
+                                        <h3 class="font-heading font-bold text-xl mb-2">Progress Tracker</h3>
+                                        <div class="w-full bg-slate-100 rounded-lg p-4 mb-4">
+                                            <p class="text-sm text-slate-500 mb-1">AI Exam Readiness</p>
+                                            <div class="text-3xl font-bold text-brand-indigo">84%</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="tab-problem" class="page-tab hidden animate-fade-in">
+                <section class="py-20 bg-white min-h-[80vh] flex flex-col justify-center">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-2xl mx-auto mb-16">
+                            <h2 class="font-heading text-3xl font-bold text-slate-900 mb-4">Why Exam Prep Feels Broken Today</h2>
+                            <p class="text-slate-600">60% of students remain underserved by existing platforms. It's time for a change.</p>
+                        </div>
+                        <div class="grid md:grid-cols-3 gap-8">
+                            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition">
+                                <div class="w-12 h-12 bg-red-100 text-red-600 rounded-lg flex items-center justify-center text-2xl mb-6">💰</div>
+                                <h3 class="font-heading font-bold text-xl mb-3">Too Expensive</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed">Quality coaching costs Rs. 50,000–2,00,000/year, keeping it out of reach for most students.</p>
+                            </div>
+                            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition">
+                                <div class="w-12 h-12 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center text-2xl mb-6">🤖</div>
+                                <h3 class="font-heading font-bold text-xl mb-3">One-Size-Fits-All</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed">Existing affordable apps deliver the exact same content to millions, leaving students directionless.</p>
+                            </div>
+                            <div class="p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:shadow-lg transition">
+                                <div class="w-12 h-12 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-2xl mb-6">🚶‍♂️</div>
+                                <h3 class="font-heading font-bold text-xl mb-3">Solo & Demotivating</h3>
+                                <p class="text-slate-600 text-sm leading-relaxed">90% of students say staying motivated without online study friends is their biggest challenge.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="tab-features" class="page-tab hidden animate-fade-in">
+                <section class="py-20 bg-slate-900 text-white min-h-[80vh] flex flex-col justify-center">
+                    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div class="text-center max-w-2xl mx-auto mb-16">
+                            <h2 class="font-heading text-3xl md:text-4xl font-bold mb-4">Your Unfair Advantage</h2>
+                            <p class="text-slate-400">Everything you need to crack your exams, built into one intelligent platform.</p>
+                        </div>
+                        
+                        <div class="grid md:grid-cols-2 gap-6">
+                            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+                                <div class="w-14 h-14 bg-indigo-500/20 text-indigo-400 rounded-xl flex items-center justify-center text-2xl mb-6">🧠</div>
+                                <h3 class="font-heading font-bold text-xl mb-3">AI Personalised Study Plans</h3>
+                                <p class="text-slate-400 text-sm">AI analyzes your performance and builds a customized 30-day plan targeting your specific weak areas.</p>
+                            </div>
+                            
+                            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+                                <div class="w-14 h-14 bg-orange-500/20 text-orange-400 rounded-xl flex items-center justify-center text-2xl mb-6">🤝</div>
+                                <h3 class="font-heading font-bold text-xl mb-3">Peer-to-Peer Study Rooms</h3>
+                                <p class="text-slate-400 text-sm">Join live virtual spaces with 2–10 students. Set study timers, discuss doubts, and share notes.</p>
+                            </div>
+
+                            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+                                <div class="w-14 h-14 bg-green-500/20 text-green-400 rounded-xl flex items-center justify-center text-2xl mb-6">📈</div>
+                                <h3 class="font-heading font-bold text-xl mb-3">Adaptive Mock Tests</h3>
+                                <p class="text-slate-400 text-sm">Weekly tests that auto-adjust difficulty based on previous performance, with AI feedback.</p>
+                            </div>
+
+                            <div class="bg-slate-800 rounded-2xl p-8 border border-slate-700">
+                                <div class="w-14 h-14 bg-purple-500/20 text-purple-400 rounded-xl flex items-center justify-center text-2xl mb-6">📶</div>
+                                <h3 class="font-heading font-bold text-xl mb-3">Offline Content Library</h3>
+                                <p class="text-slate-400 text-sm">Short 5–15 minute topic-wise videos and notes, fully downloadable for offline use.</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="tab-pricing" class="page-tab hidden animate-fade-in">
+                <section class="py-20 bg-brand-bg min-h-[80vh] flex flex-col justify-center items-center">
+                    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 w-full text-center">
+                        <h2 class="font-heading text-3xl font-bold text-slate-900 mb-4">Stop Paying for Multiple Subscriptions</h2>
+                        <div class="flex flex-wrap justify-center gap-4 mb-12">
+                            <span class="px-6 py-2 bg-white border border-slate-200 rounded-full font-semibold text-slate-600 shadow-sm">JEE</span>
+                            <span class="px-6 py-2 bg-white border border-slate-200 rounded-full font-semibold text-slate-600 shadow-sm">GATE</span>
+                            <span class="px-6 py-2 bg-white border border-slate-200 rounded-full font-semibold text-slate-600 shadow-sm">UPSC</span>
+                            <span class="px-6 py-2 bg-white border border-slate-200 rounded-full font-semibold text-slate-600 shadow-sm">SSC</span>
+                            <span class="px-6 py-2 bg-white border border-slate-200 rounded-full font-semibold text-brand-indigo shadow-sm">B.Tech Semesters</span>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-slate-900 to-brand-indigo rounded-3xl p-1 shadow-2xl max-w-2xl mx-auto text-left">
+                            <div class="bg-white rounded-[1.4rem] p-8 md:p-12 relative overflow-hidden">
+                                <div class="absolute top-6 right-[-35px] bg-brand-orange text-white text-xs font-bold px-10 py-1 rotate-45">BEST VALUE</div>
+                                <h2 class="font-heading text-3xl font-bold text-slate-900 mb-2 text-center">Democratising Education</h2>
+                                <p class="text-slate-500 mb-8 text-center">Everything you need, at a price that makes sense.</p>
+                                
+                                <div class="flex items-baseline justify-center gap-2 mb-8">
+                                    <span class="text-5xl font-bold text-slate-900">₹199</span>
+                                    <span class="text-slate-500 font-medium">/ month</span>
+                                </div>
+
+                                <ul class="max-w-md mx-auto space-y-4 mb-10">
+                                    <li class="flex items-center gap-3"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-slate-700">AI Personalised Study Plans</span></li>
+                                    <li class="flex items-center gap-3"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-slate-700">Access to Peer-to-Peer Study Rooms</span></li>
+                                    <li class="flex items-center gap-3"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-slate-700">Weekly Adaptive Mock Tests</span></li>
+                                    <li class="flex items-center gap-3"><svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg><span class="text-slate-700">Unlimited Offline Content Downloads</span></li>
+                                </ul>
+
+                                <button onclick="openLoginModal()" class="w-full bg-brand-orange hover:bg-brand-orangeDark text-white px-10 py-4 rounded-xl font-bold text-lg transition shadow-lg shadow-orange-500/30">
+                                    Get Started
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div id="dashboardPage" class="hidden fade-transition py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                
+                <div class="text-center mb-16">
+                    <h1 class="font-heading text-3xl md:text-5xl font-bold text-slate-900 mb-4">Choose Your Path</h1>
+                    <p class="text-slate-600 text-lg">Select the exam you are preparing for to generate your AI study plan.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8" id="courseCardsContainer">
+                    </div>
+
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 py-8 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center text-sm">
+            &copy; 2026 ExamEdge. All rights reserved. Built for Rs. 199/month affordability.
+        </div>
+    </footer>
+
+    <script>
+        // State variables
+        let isLoginMode = true;
+
+        // Modal Elements
+        const modal = document.getElementById('loginModal');
+        const modalTitle = document.getElementById('modalTitle');
+        const submitBtn = document.getElementById('submitBtn');
+        const toggleText = document.getElementById('toggleText');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        
+        // Page Elements
+        const landingTabsContainer = document.getElementById('landingTabsContainer');
+        const dashboardPage = document.getElementById('dashboardPage');
+        const loginBtnNav = document.getElementById('loginBtnNav');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const navLinks = document.getElementById('navLinks');
+        const courseCardsContainer = document.getElementById('courseCardsContainer');
+
+        // Courses Array
+        const courses = [
+            { id: 1, title: 'JEE', desc: 'Joint Entrance Examination', icon: '📐' },
+            { id: 2, title: 'GATE', desc: 'Graduate Aptitude Test in Engineering', icon: '⚙️' },
+            { id: 3, title: 'UPSC', desc: 'Union Public Service Commission', icon: '🏛️' },
+            { id: 4, title: 'SSC', desc: 'Staff Selection Commission', icon: '📋' },
+            { id: 5, title: 'B.Tech Semesters', desc: 'University Semester Exams', icon: '🎓' }
+        ];
+
+        // Check login state on load
+        window.onload = () => {
+            const token = localStorage.getItem('examEdge_session');
+            if (token) {
+                showDashboard();
+            }
+        };
+
+        // --- TAB SWITCHING LOGIC ---
+        function switchTab(tabId, clickedBtn) {
+            // Hide all tabs
+            const tabs = document.querySelectorAll('.page-tab');
+            tabs.forEach(tab => {
+                tab.classList.add('hidden');
+                tab.classList.remove('block');
+            });
+
+            // Remove active class from all nav buttons
+            const navButtons = document.querySelectorAll('.nav-tab');
+            navButtons.forEach(btn => btn.classList.remove('nav-active'));
+
+            // Show selected tab
+            document.getElementById(tabId).classList.remove('hidden');
+            document.getElementById(tabId).classList.add('block');
+            
+            // Highlight active button
+            if(clickedBtn) {
+                clickedBtn.classList.add('nav-active');
+            } else {
+                // Default to Home if called without a button reference
+                document.querySelector('.nav-tab').classList.add('nav-active');
+            }
+        }
+
+        // --- MODAL & AUTH LOGIC ---
+        function openLoginModal() {
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                document.getElementById('modalContent').classList.remove('scale-95');
+            }, 10);
+        }
+
+        function closeLoginModal() {
+            modal.classList.add('opacity-0');
+            document.getElementById('modalContent').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                errorMsg.classList.add('hidden');
+                document.getElementById('authForm').reset();
+            }, 300);
+        }
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+            errorMsg.classList.add('hidden');
+            if (isLoginMode) {
+                modalTitle.innerText = "Welcome Back";
+                submitBtn.innerText = "Login";
+                toggleText.innerText = "Don't have an account?";
+                toggleBtn.innerText = "Sign Up";
+            } else {
+                modalTitle.innerText = "Create an Account";
+                submitBtn.innerText = "Sign Up";
+                toggleText.innerText = "Already have an account?";
+                toggleBtn.innerText = "Login";
+            }
+        }
+
+        function handleAuth(e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value;
+            const password = document.getElementById('passwordInput').value;
+
+            if (isLoginMode) {
+                const encryptedData = localStorage.getItem('examEdge_users');
+                if (encryptedData) {
+                    try {
+                        const usersData = JSON.parse(atob(encryptedData));
+                        const user = usersData.find(u => u.email === email && u.password === password);
+                        if (user) {
+                            localStorage.setItem('examEdge_session', btoa(email));
+                            closeLoginModal();
+                            showDashboard();
+                        } else {
+                            showError("Invalid email or password.");
+                        }
+                    } catch (err) {
+                        showError("Error reading local data.");
+                    }
+                } else {
+                    showError("No users found. Please sign up first.");
+                }
+            } else {
+                let usersData = [];
+                const existingData = localStorage.getItem('examEdge_users');
+                if (existingData) {
+                    usersData = JSON.parse(atob(existingData));
+                }
+
+                if (usersData.some(u => u.email === email)) {
+                    showError("User already exists! Please login.");
+                    return;
+                }
+
+                usersData.push({ email, password });
+                const encryptedJSON = btoa(JSON.stringify(usersData));
+                localStorage.setItem('examEdge_users', encryptedJSON);
+                
+                localStorage.setItem('examEdge_session', btoa(email));
+                closeLoginModal();
+                showDashboard();
+            }
+        }
+
+        function showError(msg) {
+            errorMsg.innerText = msg;
+            errorMsg.classList.remove('hidden');
+        }
+
+        function logout() {
+            localStorage.removeItem('examEdge_session');
+            dashboardPage.classList.add('opacity-0');
+            setTimeout(() => {
+                dashboardPage.classList.add('hidden');
+                
+                // Show Tab Container and switch to Home
+                landingTabsContainer.classList.remove('hidden');
+                switchTab('tab-home');
+                
+                // Update Nav
+                loginBtnNav.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+                navLinks.classList.remove('hidden');
+                
+                courseCardsContainer.innerHTML = '';
+            }, 400);
+        }
+
+        function showDashboard() {
+            // Hide all tabs by hiding the entire container
+            landingTabsContainer.classList.add('hidden');
+            
+            dashboardPage.classList.remove('hidden');
+            setTimeout(() => {
+                dashboardPage.classList.remove('opacity-0');
+                renderFlashingCards();
+            }, 50);
+            
+            // Update Nav
+            loginBtnNav.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+            navLinks.classList.add('hidden'); 
+        }
+
+        function renderFlashingCards() {
+            courseCardsContainer.innerHTML = ''; 
+            courses.forEach((course, index) => {
+                const card = document.createElement('div');
+                card.className = `bg-white rounded-2xl p-8 border-2 border-transparent hover:border-brand-indigo cursor-pointer flex flex-col items-center text-center opacity-0 transform translate-y-4 transition-all duration-500 animate-flash-glow`;
+                card.style.animationDelay = `${index * 0.3}s`;
+                card.style.transitionDelay = `${index * 0.2}s`;
+                
+                card.innerHTML = `
+                    <div class="text-5xl mb-4">${course.icon}</div>
+                    <h3 class="font-heading font-bold text-2xl text-slate-900 mb-2">${course.title}</h3>
+                    <p class="text-slate-500 text-sm mb-6">${course.desc}</p>
+                    <button class="mt-auto px-6 py-2 bg-brand-indigo text-white font-medium rounded-full hover:bg-brand-indigoDark transition w-full">
+                        Select Plan
+                    </button>
+                `;
+                courseCardsContainer.appendChild(card);
+                setTimeout(() => {
+                    card.classList.remove('opacity-0', 'translate-y-4');
+                }, 50);
+            });
+        }
+    </script>
+</body>
+</html>
